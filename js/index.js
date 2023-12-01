@@ -41,11 +41,12 @@ class Ship {
 
 class gridCell {
 
-    constructor(id, color, borderColor, hasDot, hasCross, position, index) {
+    constructor(id, color, borderColor, isEnabled, hasDot, hasCross, position, index) {
         this.id = id;
         this.color = color ?? 'white';
         this.hasDot = hasDot ?? false;
         this.hasCross = hasCross ?? false;
+        this.isEnabled = isEnabled ?? true;
         this.borderColor = borderColor ?? 'black';
         this.pos = position;
         this.index = index;
@@ -89,30 +90,26 @@ class gridCell {
                     cell.element.classList.remove(cell.hasDot ? 'hasDot' : undefined);
                     cell.color = colors[1];
                     cell.hasDot = true;
+                    cell.isEnabled = false;
                     cell.element.classList.add(`bg-${cell.color}`);
                     cell.element.classList.add(cell.hasDot ? 'hasDot' : undefined);
                 }
             });
             const hitShip = globals.getGlobalVariable('grid')[this.pos.y][this.pos.x];
             const len = globals.getGlobalVariable('gridLength');
-            let index;
-            const isEqualCoords = (posA, posB) => posA.x === posB.x && posA.y === posB.y;
-            console.log(isEqualCoords(this.pos, hitShip.pos.start - 1));
-            if (isEqualCoords(this.pos, hitShip.pos.start - 1) && hitShip.hits > 1) {
+            let startIndex, endIndex;
+            if (isSunk(hitShip.length, hitShip.hits)) {
                 if (hitShip.pos.start.x == hitShip.pos.end.x) { // Horizontal ship
-                    index = len * hitShip.pos.end.y + hitShip.pos.end.x + 1;
+                    startIndex = len * hitShip.pos.start.y + hitShip.pos.start.x - 1;
+                    endIndex = len * hitShip.pos.end.y + hitShip.pos.end.x + 1
                 } else { // Vertical ship
-                    index = len * (hitShip.pos.end.y - 1) + hitShip.pos.end.x;
+                    startIndex = len * (hitShip.pos.start.y - 1) + hitShip.pos.start.x;
+                    endIndex = len * (hitShip.pos.end.y + 1) + hitShip.pos.end.x
                 }
-            } else if (isEqualCoords(this.pos, hitShip.pos.end - 1) && hitShip.hits > 1) {
-                if (hitShip.pos.start.y == hitShip.pos.end.y) { // Horizontal ship
-                    index = len * hitShip.pos.end.y + hitShip.pos.end.x - 1;
-                } else { // Vertical ship
-                    index = len * (hitShip.pos.end.y + 1) + hitShip.pos.end.x;
-                }
-                console.log(index);
                 globals.globalVariables['gridCells'][index].color = colors[1];
                 globals.globalVariables['gridCells'][index].hasDot = true;
+                globals.globalVariables['gridCells'][index2].color = colors[1];
+                globals.globalVariables['gridCells'][index2].hasDot = true;
             }
             // Make ship sink if all parts are hit
             const grid = globals.getGlobalVariable('grid'); {
@@ -171,12 +168,12 @@ class Gameboard {
     }
 
     appendGridCells() {
-        globals.gridCells = [];
+        globals.globalVariables['gridCells'] = [];
         const len = globals.getGlobalVariable('gridLength');
         for (let y = 0; y < len; y++) {
             for (let x = 0; x < len; x++) {
                 const index = globals.getGlobalVariable('gridCells').length;
-                const cell = new gridCell(`c${x}-${y}`, colors['white'], colors['black'], false, false, { x: x, y: y }, index);
+                const cell = new gridCell(`c${x}-${y}`, colors['white'], colors['black'], true, false, false, { x: x, y: y }, index);
                 globals.globalVariables['gridCells'].push(cell);
                 let element = globals.globalVariables['gridCells'][index].element;
                 this.container.appendChild(element);
@@ -220,7 +217,6 @@ function assignShip(shipPart, distance) {
             x: Math.round(shipPart.pos.start.x + t * (shipPart.pos.end.x - shipPart.pos.start.x)),
             y: Math.round(shipPart.pos.start.y + t * (shipPart.pos.end.y - shipPart.pos.start.y))
         };
-        if (i == 1) console.log(curPoint);
         // Check whether the calculated position falls within the border
         if (curPoint.x >= 0 && curPoint.x < grid[0].length &&
             curPoint.y >= 0 && curPoint.y < grid.length) {
@@ -265,6 +261,12 @@ function calcDistance(start, end) {
     const dx = end.x - start.x;
     const dy = end.y - start.y;
     return Math.sqrt(dx * dx + dy * dy);
+}
+
+function removeAllChildNodes(parent) {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
 }
 
 // Initiate appropriate classes

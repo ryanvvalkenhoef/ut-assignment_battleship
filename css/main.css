@@ -106,8 +106,8 @@
     display: grid;
     grid-template-columns: repeat(15, 4vmin);
     grid-template-rows: repeat(15, 4vmin);
-    height: 50vmin;
-    width: 50vmin;
+    height: 60vmin;
+    width: 60vmin;
     border: 1px solid rgb(190, 190, 190);
     margin: -1px -1px;
     background-color: transparent;
@@ -120,7 +120,7 @@
     outline-style: none;
     width: 4vmin;
     height: 4vmin;
-    border: 1px solid rgb(150, 150, 150);
+    border: 0.5px solid rgb(150, 150, 150);
     float: left;
   }
   
@@ -137,6 +137,7 @@
 .hasDot:before {
     position: absolute;
     content: '';
+    opacity: 0.5;
     background: black;
     display: block;
     width: 5px;
@@ -150,6 +151,7 @@
 }
 
   .hasCross {
+    border: 2px solid red;
     position: relative;
     background: lightgrey;
     overflow: hidden; /* hide overflow of pseudo elements */
