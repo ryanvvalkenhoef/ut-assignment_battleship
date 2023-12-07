@@ -1,11 +1,18 @@
 const hasHitShip = require("./hasHitShip.js");
-const
-    it('Hitship', async () => {
-        const result = await hasHitShip(
-            [Ship('2224', { start: { x: 2, y: 2 }, end: { x: 2, y: 4 } }, 2, 0)],
-            { x: 1, y: 1 }
-        );
-        expect(result).toEqual(Ship('2224', { start: { x: 2, y: 2 }, end: { x: 2, y: 4 } }, 2, 0) ?? undefined);
-    });
+import Ship from '../Ship.js';
+
+const ships = [new Ship('2224', { start: { x: 2, y: 2 }, end: { x: 2, y: 4 } }, 2, 0)];
+const hitPoints = { x: 2, y: 2 };
+it('Hitship', () => {
+    const result = hasHitShip(
+        ships,
+        hitPoints
+    );
+    console.log(hasHitShip(
+        ships,
+        hitPoints
+    ));
+    expect(result).toEqual(new Ship('2224', { start: { x: 2, y: 2 }, end: { x: 2, y: 4 } }, 2, 0));
+});
 
 module.exports = hasHitShip;

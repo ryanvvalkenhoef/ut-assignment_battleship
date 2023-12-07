@@ -1,6 +1,9 @@
-function assignShip(shipPart, distance) {
-    let distanceNum = distance || calcDistance(shipPart.start, shipPart.end);
+import calcDistance from './calcDistance.js';
+function assignShip(globals, shipPart, distance) {
+    console.log(shipPart, 'shipPart');
+    console.log(globals, 'globals');
     const grid = globals.getGlobalVariable('grid');
+    let distanceNum = distance || calcDistance(shipPart.pos.start, shipPart.pos.end);
     for (let i = 0; i <= distanceNum; i++) {
         // Calculate the position on the line between the points
         const t = i / distanceNum;
@@ -15,7 +18,6 @@ function assignShip(shipPart, distance) {
             globals.globalVariables['grid'][curPoint.y][curPoint.x] = shipPart;
         }
     }
-    return shipPart;
 }
 
 module.exports = assignShip;
