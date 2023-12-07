@@ -79,3 +79,5 @@ class Dominator {
     }
 
 }
+
+module.exports = Dominator;

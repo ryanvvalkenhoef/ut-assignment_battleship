@@ -1,3 +1,4 @@
+import './utils/index.js';
 const colors = ['white', 'lightgrey', 'red', 'blue', 'lightpink', 'lightyellow'];
 
 class GlobalData {
@@ -25,7 +26,7 @@ class Ship {
 
     constructor(id, position, length, hits) {
         this.id = id;
-        this.isSunk = false
+        this.hasSunk = false
         this.length = length;
         this.hits = hits;
         this.pos = position ?? {};
@@ -34,7 +35,7 @@ class Ship {
     hit() { this.hits++; }
 
     sunk() {
-        this.isSunk = isSunk(this.length, this.hits);
+        this.hasSunk = hasSunk(this.length, this.hits);
     }
 
 }
@@ -98,7 +99,7 @@ class gridCell {
             const hitShip = globals.getGlobalVariable('grid')[this.pos.y][this.pos.x];
             const len = globals.getGlobalVariable('gridLength');
             let startIndex, endIndex;
-            if (isSunk(hitShip.length, hitShip.hits)) {
+            if (hasSunk(hitShip.length, hitShip.hits)) {
                 if (hitShip.pos.start.x == hitShip.pos.end.x) { // Horizontal ship
                     startIndex = len * hitShip.pos.start.y + hitShip.pos.start.x - 1;
                     endIndex = len * hitShip.pos.end.y + hitShip.pos.end.x + 1
@@ -207,74 +208,14 @@ class Gameboard {
     }
 }
 
-// Test functions ---
-function assignShip(shipPart, distance) {
-    const grid = globals.getGlobalVariable('grid');
-    for (let i = 0; i <= distance; i++) {
-        // Calculate the position on the line between the points
-        const t = i / distance;
-        const curPoint = {
-            x: Math.round(shipPart.pos.start.x + t * (shipPart.pos.end.x - shipPart.pos.start.x)),
-            y: Math.round(shipPart.pos.start.y + t * (shipPart.pos.end.y - shipPart.pos.start.y))
-        };
-        // Check whether the calculated position falls within the border
-        if (curPoint.x >= 0 && curPoint.x < grid[0].length &&
-            curPoint.y >= 0 && curPoint.y < grid.length) {
-            // Fill in the grid on the calculated position
-            globals.globalVariables['grid'][curPoint.y][curPoint.x] = shipPart;
-        }
-    }
-    return shipPart;
-}
-
-function getFilledGrid(gridLength) {
-    return [...Array(gridLength)].map(e => Array(gridLength).fill(null));
-}
-
-function hasHitShip(ships, hitPoint) {
-    ships.forEach(hitShip => {
-        const distance = calcDistance(hitShip.pos.start, hitShip.pos.end); {
-            for (let i = 0; i <= distance; i++) {
-                // Calculate the position on the line between the points
-                const t = Math.round(i / distance);
-                const curPoint = {
-                    x: hitShip.pos.start.x + t * (hitShip.pos.end.x - hitShip.pos.start.x),
-                    y: hitShip.pos.start.y + t * (hitShip.pos.end.y - hitShip.pos.start.y)
-                };
-                // Check whether the curPoint is the same as the hit position
-                if (curPoint === hitPoint) return hitShip ?? undefined;
-            }
-        }
-    })
-};
-
-function isSunk(length, hits) {
-    return (length == hits);
-}
-
-function didReceiveAttack(missedShots, x, y) {
-    return !missedShots.includes({ x: x, y: y });
-}
-
-// Other functions ---
-function calcDistance(start, end) {
-    const dx = end.x - start.x;
-    const dy = end.y - start.y;
-    return Math.sqrt(dx * dx + dy * dy);
-}
-
-function removeAllChildNodes(parent) {
-    while (parent.firstChild) {
-        parent.removeChild(parent.firstChild);
-    }
-}
+// Utility functions ---
 
 // Initiate appropriate classes
 const globals = new GlobalData();
 const gameboard = new Gameboard();
 
 // Append appropriate elements
-document.querySelector('#gameboard').append(gameboard.container);
+document.getElementById('gameboard').append(gameboard.container);
 
 // Generate ship for testing
 gameboard.shipFactory({ x: 2, y: 2 }, { x: 2, y: 4 });
